@@ -47,7 +47,7 @@ class Weather(MethodView):
             # return a list of weather
             city_id = 'beijing'
             request_data = self.get_data(city_id)
-            return json.dumps(request_data,ensure_ascii=False,indent=2)
+            # return json.dumps(request_data,ensure_ascii=False,indent=2)
         else:
             # expose a single weather
             try:
@@ -55,7 +55,8 @@ class Weather(MethodView):
             except:
                 city_id = 'beijing'
                 request_data = self.get_data(city_id)
-            return json.dumps(request_data,ensure_ascii=False,indent=2)
+        # return json.dumps(request_data,ensure_ascii=False,indent=2)
+        return render_template('result.html',request_data=request_data)
 
     def post(self):
         # create a new user
