@@ -1,5 +1,6 @@
-from flask import render_template,redirect,jsonify
+from flask import render_template,redirect,jsonify,request
 import json
+from xml.etree import ElementTree as et
 import requests
 from flask.views import MethodView
 from apis import people_blu
@@ -39,6 +40,10 @@ class Weather(MethodView):
 
     def get(self, city_id):
         if city_id is None:
+#            data = request.args.get('echostr')
+#            print(data)
+#            return data
+
             # return a list of weather
             city_id = 'beijing'
             request_data = self.get_data(city_id)
@@ -54,7 +59,26 @@ class Weather(MethodView):
 
     def post(self):
         # create a new user
-        pass
+        data = request.get_data()
+        xml = et.fromstring(data)
+        city_id = xml.findtext('.//Content')
+        fromUser = xml.findtext('.//FromUserName')
+        toUser = xml.findtext('.//ToUserName')
+        try:
+                request_data = self.get_data(city_id)
+        except:
+                city_id = 'beijing'
+                request_data = self.get_data(city_id)
+
+        return """
+               <xml>
+               <ToUserName><![CDATA[%s]]></ToUserName>
+               <FromUserName><![CDATA[%s]]></FromUserName>
+               <CreateTime>12345678</CreateTime>
+               <MsgType><![CDATA[text]]></MsgType>
+               <Content><![CDATA[%s]]></Content>
+               </xml>
+               """%(fromUser,toUser,request_data)
 
     def delete(self, user_id):
         # delete a single user
@@ -71,4 +95,8 @@ def index():
     }
     return jsonify(data)
 
-
+@people_blu.route('/weixin')
+def weixin():
+    data = request.args.get('echostr')
+    print(data)
+    return data
